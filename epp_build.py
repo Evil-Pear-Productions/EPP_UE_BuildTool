@@ -472,20 +472,22 @@ def process_args():
         "buildplatform",
         "cookcommand",
         "architecture",
+        "generatesettings"
     ]
 
     # Go through the array of sys args and sort them into key-value pairs for ease-of-use
     sorted_args: dict = {}
     index = 1
-    while index < num_args - 1:
+    while index <= num_args - 1:
         key = sys.argv[index].lower()
+        print("Current key: ", key)
         if key not in valid_args:
             print("!!! WARNING !!! Invalid argument: '" + key + "'. Use 'helpme' for a list of all valid commands!")
             exit_tool(0)
-        if key == "helpme":
+        elif key == "helpme":
             helpme()
             exit_tool(0)
-        if key == "updatesettingsonly":
+        elif key == "updatesettingsonly" or key == "generatesettings":
             update_settings_only = True
             save_settings = True
             sorted_args[key] = "True" # Do this just to follow the format
@@ -499,7 +501,6 @@ def process_args():
     print(">>>>> Processing command line arguments")
 
     # Now, go through any settings that were passed in and update them
-
     # Determine if we should save settings
     if update_settings_only == False and "savesettings" in sorted_args:
         v = sorted_args["savesettings"]
