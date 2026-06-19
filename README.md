@@ -35,12 +35,12 @@ Should your team wish to use a different naming convention, you will need to cha
 
 
 ## Settings
-* `project_path` - Path where your .uproject file exists
+* `project_path` - Absolute path where your .uproject file exists
 * `project_name` - Name of your .uproject file
-* `engine_path` - Path to your Unreal Engine install
-* `build_path` - Path of where to archive the packaged project
+* `engine_path` - Absolute path to your Unreal Engine install
+* `build_path` - Absolute path of where to archive the packaged project
 * `build_config` - Build config to use (Development, DebugGame, or Shipping)
-* `build_platforms` - Platform to build for (by default set to Win64)
+* `build_platforms` - Platform to build for (by default set to Win64 and Linux)
 * `cook_command` - Specify the cook command to use (by default uses BuildCookRun)
 * `should_update_version_config` - Flag if we should update the UE DefaultGame ini file's project version. True by default.
 * `architecture` - Specify the architecture(s) to build for ('x86_64', 'arm64', or 'arm64+x86_64')
