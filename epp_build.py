@@ -29,7 +29,7 @@ project_path:           str = "D:\\MyGameProjects\\MyGame"                  # Pa
 builds_path:            str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
 engine_path:            str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
 build_config:           str = "Development"                                 # Desired build config (DebugGame, Development, or Shipping)
-build_platform:         str = "Win64"                                       # Desired platform
+build_platforms:        list = ["Win64", "Linux"]                           # Desired platforms
 cook_command:           str = "BuildCookRun"                                # Specific cook command
 update_ue_config:       bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
 architecture:           str = "x86_64"
@@ -38,9 +38,9 @@ architecture:           str = "x86_64"
 
 #region - Generated -
 
-new_version:            str = ""    # New version name
-archive_path:           str = ""    # Generated directory where the packaged project should be placed
-uat_path:               str = ""    # Generated path to the RunUAT batch file
+new_version:            str = ""                                            # New version name
+archive_path:           str = ""                                            # Generated directory where the packaged project should be placed
+uat_path:               str = ""                                            # Generated path to the RunUAT batch file
 
 #endregion
 
@@ -190,60 +190,60 @@ class UnrealConfig:
 #region --- Functions ---
 
 #region - Set script global vars -
-def set_new_version(v: str):
+def set_new_version(v: str) -> None:
     global new_version
     new_version = v
     print(">> New version number:      ", v)
 
-def set_project_path(path: str):
+def set_project_path(path: str) -> None:
     global project_path
     project_path = path
 
-def set_project_name(name: str):
+def set_project_name(name: str) -> None:
     global project_name
     project_name = name
 
-def set_build_path(path: str):
+def set_build_path(path: str) -> None:
     global builds_path
     builds_path = path
 
-def set_build_config(build_type: str):
+def set_build_config(build_type: str) -> None:
     global build_config
     build_config = build_type
 
-def set_cook_command(cmd: str):
+def set_cook_command(cmd: str) -> None:
     global cook_command
     cook_command = cmd
 
-def set_build_platform(p: str):
-    global build_platform
-    build_platform = p
+def set_build_platforms(p: list) -> None:
+    global build_platforms
+    build_platforms = p
 
-def set_engine_path(path: str):
+def set_engine_path(path: str) -> None:
     global engine_path
     engine_path = path
     construct_uat_path()
 
-def set_update_ue_flag(flag: bool):
+def set_update_ue_flag(flag: bool) -> None:
     global update_ue_config
     update_ue_config = flag
 
-def set_architecture(arch: str):
+def set_architecture(arch: str) -> None:
     global architecture
     architecture = arch
 
-def print_settings():
+def print_settings() -> None:
     print(">> Set project name:        ", project_name)
     print(">> Set project path:        ", project_path)
     print(">> Set UAT path:            ", uat_path)
     print(">> Set build path to:       ", builds_path)
     print(">> Set build configuration: ", build_config)
     print(">> Set cook command:        ", cook_command)
-    print(">> Set build platform:      ", build_platform)
+    print(">> Set build platform:      ", build_platforms)
     print(">> Update UE config file?   ", update_ue_config)
     print(">> Set architecture:        ", architecture)
 
-def construct_uat_path():
+def construct_uat_path() -> None:
     subpath = uat_path_base_win
     if platform.system() == "Darwin":
         subpath = uat_path_base_mac
@@ -254,7 +254,7 @@ def construct_uat_path():
 #endregion
 
 #region - Process funcs -
-def make_archive_path():
+def make_archive_path() -> None:
     print("")
     print(">>>>> Creating archive directory...")
 
@@ -267,12 +267,25 @@ def make_archive_path():
         return
     os.mkdir(new_directory)
 
-def save_config(config, config_path):
+def make_archive_path_for_platform(target_platform: str) -> str:
+    print("")
+    print(f">>>>> Creating archive directory for platform {target_platform}...")
+
+    global archive_path
+
+    new_directory = os.path.join(archive_path, target_platform)
+    if os.path.exists(new_directory):
+        print(">> Directory already exists, early returning...")
+        return new_directory
+    os.mkdir(new_directory)
+    return new_directory
+
+def save_config(config, config_path) -> None:
     configfile = open(config_path, 'w')
     config.write(configfile)
     configfile.close()
 
-def update_version():
+def update_version() -> None:
     # EPP uses a standardized versioning name convention:
     # date_buildconfig_num
     # E.g. 042625_dev_001 indicates the build was on 04.26.25, on Development, first build of the day
@@ -323,43 +336,38 @@ def update_version():
     config.update_file()
     set_new_version(version)
 
-def read_settings_json():
+def read_settings_json() -> None:
 
     print(">>>>> Importing settings from JSON")
-
-    if not os.path.exists(settings_file_name):
-        print(">>>>> No settings file found, using script defaults")
-        construct_uat_path()
-        return
 
     file = open(settings_file_name, "r")
     settings = json.load(file)
     file.close()
 
-    set_project_path(settings["projectpath"])
-    set_project_name(settings["projectname"])
-    set_engine_path(settings["enginepath"])
-    set_build_path(settings["buildpath"])
-    set_build_config(settings["buildconfig"])
-    set_cook_command(settings["cookcommand"])
-    set_build_platform(settings["buildplatform"])
-    set_update_ue_flag(settings["updategame"])
+    set_project_path(settings["project_path"])
+    set_project_name(settings["project_name"])
+    set_engine_path(settings["engine_path"])
+    set_build_path(settings["build_path"])
+    set_build_config(settings["build_config"])
+    set_cook_command(settings["cook_command"])
+    set_build_platforms(settings["build_platforms"])
+    set_update_ue_flag(settings["should_update_version_config"])
     set_architecture(settings["architecture"])
 
-def write_settings_json():
+def write_settings_json() -> None:
 
     print("")
     print(">>>>> Writing settings to JSON")
 
     new_settings = {
-        "projectpath": project_path,
-        "projectname": project_name,
-        "enginepath": engine_path,
-        "buildpath": builds_path,
-        "buildconfig": build_config,
-        "cookcommand": cook_command,
-        "buildplatform": build_platform,
-        "updategame": update_ue_config,
+        "project_path": project_path,
+        "project_name": project_name,
+        "engine_path": engine_path,
+        "build_path": builds_path,
+        "build_config": build_config,
+        "cook_command": cook_command,
+        "build_platforms": build_platforms,
+        "should_update_version_config": update_ue_config,
         "architecture": architecture
     }
 
@@ -369,26 +377,26 @@ def write_settings_json():
     file.write(json_data)
     file.close()
 
-def make_zip():
-    zip_result = shutil.make_archive(archive_path, 'zip', archive_path)
-    final = shutil.move(zip_result, archive_path)
+def make_zip(target_platform: str, target_path: str) -> None:
+    final_name = target_platform.lower()
+
+    if new_version != "":
+        final_name = new_version + "_" + final_name
+
+    zip_result = shutil.make_archive(final_name, 'zip', target_path)
+    final = shutil.move(zip_result, target_path)
     print(">>>>>> ZIP result: " + final)
 
-def make_build():
+def make_build(target_platform:str) -> None:
 
-    print("")
-    print(">>>>> Starting build process")
+    target_path = make_archive_path_for_platform(target_platform)
 
-    if update_ue_config:
-        update_version()
-
-    make_archive_path()
     build_command = [
         uat_path,
         cook_command,
         f"-project={os.path.join(project_path, f'{project_name}.uproject')}",
         "-noP4",
-        f"-platform={build_platform}",
+        f"-platform={target_platform}",
         f"-specifiedarchitecture={architecture}",
         f"-clientconfig={build_config}",
         "-cook",
@@ -396,14 +404,14 @@ def make_build():
         "-stage",
         "-pak",
         "-archive",
-        f"-archivedirectory={archive_path}"
+        f"-archivedirectory={target_path}"
     ]
 
-    if build_platform != "Win64":
+    if target_platform != "Win64":
         build_command.append("-client")
 
     print("")
-    print(">>>>> Packaging game...")
+    print(f">>>>> Packaging game for {target_platform}...")
     print("")
 
     try:
@@ -411,193 +419,62 @@ def make_build():
         print("")
         print(">>>>> PACKAGING DONE! Return code: ", result.returncode)
         print(">>>>> Packaging build into ZIP...")
-        make_zip()
-        exit_tool(0)
+        make_zip(target_platform, target_path)
     except subprocess.CalledProcessError as e:
         print("")
         print(">>>>> PACKAGING FAILED: ", e)
         exit_tool(1)
 
-def helpme():
-    print("""
-    *** EPP Build Tool commands ***
-        helpme                  Prints this info. Congrats, you did it!
-
-        updatesettingsonly      Don't run the build, just update the settings and save out to JSON. If not specified, will try to run the build process.
-                                Does not take in any additional info, and will override anything passed into a "savesettings" argument
-
-        savesettings            If true, will save out the inputted settings to JSON, which will be read in as the new defaults in the future. Defaults to false.
-
-        updategame              Flag if we should update the UE DefaultGame ini file's project version. True by default.
-        buildconfig             Set the build config of the Unreal project (Development, DebugGame, or Shipping)
-        enginepath              Set the path to your Unreal Engine install
-        projectname             Set the game project name (name of your .uproject file)
-        projectpath             Set the game's project path (path where your .uproject file exists)
-        buildpath               Set path of where to archive the packaged game (path where the build goes!)
-        buildplatform           Set the platform to build for (by default set to Win64)
-        cookcommand             Specify the cook command to use (by default uses BuildCookRun)
-        architecture            Specify which architecture(s) to build for ('x86_64', 'arm64', or 'arm64+x86_64')
-    *******************************
-    """)
-
-def exit_tool(code: int):
+def exit_tool(code: int) -> None:
     print("")
     print(">>>>>>>>>> EXITING EPP UNREAL BUILD TOOL <<<<<<<<<<")
     print("")
     sys.exit(code)
 
-def process_args():
+def verify_settings() -> bool:
+    if not os.path.exists(settings_file_name):
+        return False
+    return True
 
-    num_args = len(sys.argv)
+def make_all_builds() -> None:
+    print("")
+    print(">>>>> Starting build process...")
+    print("")
 
-    # First, if no args, we assume it's just a standard build with the saved/current settings
-    if num_args == 0:
-        make_build()
-        return
+    if update_ue_config:
+        update_version()
 
-    # Operation flags
-    update_settings_only: bool = False
-    save_settings: bool = False
+    make_archive_path()
 
-    valid_args = [
-        "helpme",
-        "updatesettingsonly",
-        "savesettings",
-        "updategame",
-        "buildconfig",
-        "enginepath",
-        "projectname",
-        "projectpath",
-        "buildpath",
-        "buildplatform",
-        "cookcommand",
-        "architecture",
-        "generatesettings"
-    ]
-
-    # Go through the array of sys args and sort them into key-value pairs for ease-of-use
-    sorted_args: dict = {}
-    index = 1
-    while index <= num_args - 1:
-        key = sys.argv[index].lower()
-        print("Current key: ", key)
-        if key not in valid_args:
-            print("!!! WARNING !!! Invalid argument: '" + key + "'. Use 'helpme' for a list of all valid commands!")
-            exit_tool(0)
-        elif key == "helpme":
-            helpme()
-            exit_tool(0)
-        elif key == "updatesettingsonly" or key == "generatesettings":
-            update_settings_only = True
-            save_settings = True
-            sorted_args[key] = "True" # Do this just to follow the format
-            index += 1
-            continue
-        value = sys.argv[index + 1]
-        sorted_args[key] = value
-        index += 2
+    for p in build_platforms:
+        make_build(p)
 
     print("")
-    print(">>>>> Processing command line arguments")
+    print(">>>>> ALL PACKAGING COMPLETE!")
+    print("")
 
-    # Now, go through any settings that were passed in and update them
-    # Determine if we should save settings
-    if update_settings_only == False and "savesettings" in sorted_args:
-        v = sorted_args["savesettings"]
-        if v.lower() == "true":
-            save_settings = True
+    exit_tool(0)
 
-    # Set project name
-    if "projectname" in sorted_args:
-        v = sorted_args["projectname"]
-        set_project_name(v)
-
-    # Set project path
-    if "projectpath" in sorted_args:
-        v = sorted_args["projectpath"]
-        set_project_path(v)
-
-    # Set UAT path
-    if "enginepath" in sorted_args:
-        v = sorted_args["enginepath"]
-        set_engine_path(v)
-
-    # Set build path
-    if "buildpath" in sorted_args:
-        v = sorted_args["buildpath"]
-        set_build_path(v)
-
-    # Set build config
-    if "buildconfig" in sorted_args:
-        v = sorted_args["buildconfig"].lower()
-        if v == "dev" or v == "development":
-            set_build_config("Development")
-        elif v == "debug" or v == "debuggame":
-            set_build_config("DebugGame")
-        elif v == "shipping":
-            set_build_config("Shipping")
-        else:
-            set_build_config("Development")
-
-    # Set cook command
-    if "cookcommand" in sorted_args:
-        v = sorted_args["cookcommand"]
-        set_cook_command(v)
-
-    # Set build platform
-    if "buildplatform" in sorted_args:
-        v = sorted_args["buildplatform"]
-        set_build_platform(v)
-
-    # Flag for updating UE config file
-    if "updategame" in sorted_args:
-        v = sorted_args["updategame"]
-        if v.lower() == "false":
-            set_update_ue_flag(False)
-
-    # Set build architecture(s)
-    if "architecture" in sorted_args:
-        v = sorted_args["architecture"]
-        set_architecture(v)
-
-    # Now, if we were told to only update the settings, return and exit. Else, make the build!
-    if update_settings_only:
-        write_settings_json()
-
-        print("")
-        print("** Updated settings **")
-        print_settings()
-
-        print("")
-        print(">>>>> Settings update complete")
-
-        exit_tool(0)
-    else:
-        if save_settings:
-            write_settings_json()
-            print("")
-            print("** Updated build settings **")
-        else:
-            print("")
-            print("** Build Settings **")
-        print_settings()
-        make_build()
-
-def start_tool():
-
+def start_tool() -> None:
     print("")
     print(">>>>>>>>>> RUNNING EPP UNREAL BUILD TOOL <<<<<<<<<<")
     print("")
 
+    if not verify_settings():
+        print("**** ALERT **** No settings JSON was found! Use generated template to fill out your settings and try again.")
+        write_settings_json()
+        exit_tool(0)
+
     read_settings_json()
-    process_args()
+    make_all_builds()
+
 #endregion
 
 #endregion
 
 #region --- Main ---
 
-def main():
+def main() -> None:
     start_tool()
 
 #endregion

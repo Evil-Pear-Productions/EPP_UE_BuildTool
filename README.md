@@ -5,11 +5,9 @@ A simple Python tool to build an Unreal game and auto-update the project version
 
 Made with Python 3.12
 
-This assumes a Windows system, but could be easily updated for Linux/Mac as well.
-
 
 ## About
-An easy-to-use script aimed at auto-updating an Unreal `DefaultGame.ini` version number field and then generating a build of the specified UE project.
+An easy-to-use script aimed at auto-updating an Unreal `DefaultGame.ini` version number field and then generating builds of the specified UE project on all specified platforms.
 
 We're also open sourcing this script - this is a simple operation that should probably be better integrated into the base engine, so barring engine feature updates to enable that, we've provided *some sort* of option and knowledge repo for doing so.
 
@@ -17,19 +15,15 @@ To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the 
 
 This is a great source for additional Unreal Automation Tool info: https://github.com/botman99/ue4-unreal-automation-tool
 
+
 ## Setup
-There are a few variables you need to set to use this tool properly. See either the "Per Project" section in the Python file or use the built-in `helpme` command line argument to see a list of the additional arguments to do so and the settings they change.
+This tool uses a settings file to operate correctly.
 
-At minimum, you will need to set these command line arguments:
-* `enginepath`
-* `projectname`
-* `projectpath`
-* `buildpath`
+If no settings file is found, the tool will generate one for you to fill out and then exit.
 
-To save your settings for future uses of the tool, use the command line argument `savesettings true` to generate a JSON file containing all of your settings.
 
 ## Build Naming Convention
-Evil Pear Productions uses a standardized versioning name convention:
+Evil Pear Productions uses a standardized version naming convention:
 
 `date_buildconfig_num`
 
@@ -40,21 +34,13 @@ This is then used to make our build directory.
 Should your team wish to use a different naming convention, you will need to change the contents of the function `update_version` in the main Python file.
 
 
-## EPP Build Tool commands
-* `helpme` - Prints this info. Congrats, you did it!
-* `updatesettingsonly` - Don't run the build, just update the settings and save out to JSON. If not used, the tool will try to run the build process. Does not take in any additional info, and will override anything passed into a "savesettings" argument
-* `savesettings` - If true, will save out the inputted settings to JSON, which will be read in as the new defaults in the future. Defaults to false.
-* `updategame` - Flag if we should update the UE DefaultGame ini file's project version. True by default.
-* `buildconfig` - Set the build config of the Unreal project (Development, DebugGame, or Shipping)
-* `enginepath` - Set the path to your Unreal Engine install
-* `projectname` - Set the game project name (name of your .uproject file)
-* `projectpath` - Set the game's project path (path where your .uproject file exists)
-* `buildpath` - Set path of where to archive the packaged game (path where the build goes!)
-* `buildplatform` - Set the platform to build for (by default set to Win64)
-* `cookcommand` - Specify the cook command to use (by default uses BuildCookRun)
+## Settings
+* `project_path` - Path where your .uproject file exists
+* `project_name` - Name of your .uproject file
+* `engine_path` - Path to your Unreal Engine install
+* `build_path` - Path of where to archive the packaged project
+* `build_config` - Build config to use (Development, DebugGame, or Shipping)
+* `build_platforms` - Platform to build for (by default set to Win64)
+* `cook_command` - Specify the cook command to use (by default uses BuildCookRun)
+* `should_update_version_config` - Flag if we should update the UE DefaultGame ini file's project version. True by default.
 * `architecture` - Specify the architecture(s) to build for ('x86_64', 'arm64', or 'arm64+x86_64')
-
-## Examples
-* `python epp_build.py helpme` - Display helpme info
-* `python epp_build.py buildplatform Linux` - Run a build, targeting Linux
-* `python epp_build.py savesettings true cookcommand BuildCookRun projectpath "D:\My Game Projects\Example Project"` - Run a build, saving the inputted settings for the future
