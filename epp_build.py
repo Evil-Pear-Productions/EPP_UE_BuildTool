@@ -21,8 +21,6 @@ from datetime import datetime
 
 #region - Per Project -
 
-""" TODO - Change these for your project! Can also be set via command line args """
-
 project_name:           str = "MyGame"                                      # Uproject file name
 project_path:           str = "D:\\MyGameProjects\\MyGame"                  # Path to the project file
 builds_path:            str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
