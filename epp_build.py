@@ -61,7 +61,7 @@ settings_file_name:     str = "settings.json"
 
 #endregion
 
-#region --- Class ---
+#region --- Classes ---
 
 ### VERY basic class for manually parsing an Unreal config file, because of course, why would we follow ini standards???
 class UnrealConfig:
