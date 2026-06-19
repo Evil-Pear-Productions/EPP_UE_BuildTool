@@ -12,7 +12,6 @@ import platform
 import subprocess
 import sys
 import json
-from zipfile import ZipFile
 import shutil
 from datetime import datetime
 
@@ -150,7 +149,8 @@ class UnrealConfig:
                     return value
         return ""
 
-    def sanitize_section(self, section):
+    @staticmethod
+    def sanitize_section(section):
         r = section[0]
         l = section[len(section) - 1]
         if r != "[":
@@ -309,7 +309,6 @@ def update_version() -> None:
         exit_tool(1)
 
     build = build_config_name[build_config]
-    version = ""
 
     config = UnrealConfig()
     config.parse_file(config_file_path)
@@ -384,7 +383,7 @@ def make_zip(target_platform: str, target_path: str) -> None:
         final_name = new_version + "_" + final_name
 
     zip_result = shutil.make_archive(final_name, 'zip', target_path)
-    final = shutil.move(zip_result, target_path)
+    final = shutil.move(zip_result, archive_path)
     print(">>>>>> ZIP result: " + final)
 
 def make_build(target_platform:str) -> None:
