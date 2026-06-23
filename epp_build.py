@@ -278,11 +278,6 @@ def make_archive_path_for_platform(target_platform: str) -> str:
     os.mkdir(new_directory)
     return new_directory
 
-def save_config(config, config_path) -> None:
-    configfile = open(config_path, 'w')
-    config.write(configfile)
-    configfile.close()
-
 def update_version() -> None:
     # EPP uses a standardized versioning name convention:
     # date_buildconfig_num
